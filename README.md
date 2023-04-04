@@ -1,4 +1,4 @@
-# Networked Table
+# NetTbl
 Luau table that replicates and tracks itself.
 
 ## Installation
