@@ -142,16 +142,15 @@ end
 function Server.get(name: string): any -- Yields
 	local calls = 0
 	
-	-- Wait for data to be created
-	repeat
-		task.wait()
-		
-		-- Prevent infinite yield
+	-- Wait for stream to be created
+	while not streams[name] do
 		calls += 1
 		if calls > 100_000 then
 			error("Tried to retrieve a stream but reached the wait limit, did you forget to create the stream?")
 		end
-	until streams[name].dataWithInterface ~= nil
+
+		task.wait()
+	end
 	
 	-- Return the data
 	return streams[name].dataWithInterface
