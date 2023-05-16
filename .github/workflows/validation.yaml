@@ -1,5 +1,8 @@
 name: Validation
 
+env:
+  GH_TOKEN: ${{ github.token }}
+
 # Trigger when
 on:
   # Push occurs in the main branch
@@ -22,7 +25,7 @@ jobs:
         with:
           version: v1.0.0 # name of git tag
           path: some_directory/my_project # path to project directory containing `aftman.toml`
-          token: ${{ secrets.github.token }} # GitHub token to bypass rate limit
+          token: ${{ github.token }} # GitHub token to bypass rate limit
       
       - name: Lint
         run: selene src spec
@@ -36,4 +39,4 @@ jobs:
         with:
           version: 3.0.0
           args: --check .
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
