@@ -35,8 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: JohnnyMorganz/stylua-action@v3
+      - uses: JohnnyMorganz/stylua-action@v3.0.0
         with:
-          version: 3.0.0
           args: --check .
           token: ${{ github.token }}
