@@ -17,13 +17,12 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Install aftman
-        uses: LPGhatguy/aftman@0.2.7
+      - uses: actions/checkout@v3
+      - uses: ok-nick/setup-aftman@v0.3.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          version: v1.0.0 # name of git tag
+          path: some_directory/my_project # path to project directory containing `aftman.toml`
+          token: ${{ secrets.github.token }} # GitHub token to bypass rate limit
       
       - name: Lint
         run: selene src spec
@@ -33,7 +32,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: JohnnyMorganz/StyLua@0.17.1
+      - uses: JohnnyMorganz/stylua-action@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          version: 3.0.0
           args: --check .
+          token: ${{ secrets.GITHUB_TOKEN }}
