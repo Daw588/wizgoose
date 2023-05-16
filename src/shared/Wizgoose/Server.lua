@@ -1,4 +1,3 @@
-
 --!strict
 
 local Proxify = require(script.Parent.Internal.Proxify)

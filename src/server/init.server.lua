@@ -6,7 +6,6 @@ Wizgoose.new("Player1", {
 	money = 0,
 })
 
-
 --tbl.Value.money += 50
 
 --changed:Disconnect()
