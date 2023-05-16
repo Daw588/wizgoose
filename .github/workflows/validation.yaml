@@ -1,0 +1,39 @@
+name: Validation
+
+# Trigger when
+on:
+  # Push occurs in the main branch
+  push:
+    branches:
+      - main
+
+  # Pull request occurs in the main branch
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install aftman
+        uses: LPGhatguy/aftman@0.2.7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Lint
+        run: selene src spec
+  
+  style:
+    name: Styling
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: JohnnyMorganz/StyLua@0.17.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --check .

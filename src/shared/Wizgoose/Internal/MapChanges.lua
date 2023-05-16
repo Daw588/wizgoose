@@ -8,9 +8,9 @@ local function MapChanges(a: any, b: any, prevRoot: any?, prevChangeLog: any?)
 			if a ~= b then
 				-- Change
 				table.insert(changeLog, {
-					path = if next(root) == nil then {} else {unpack(root)},
+					path = if next(root) == nil then {} else { unpack(root) },
 					oldValue = a,
-					newValue = b
+					newValue = b,
 				})
 				return changeLog -- Cannot iterate over an non-table value, stop here!
 			end
@@ -19,24 +19,24 @@ local function MapChanges(a: any, b: any, prevRoot: any?, prevChangeLog: any?)
 		-- print("Data type changed")
 		-- Change
 		table.insert(changeLog, {
-			path = if next(root) == nil then {} else {unpack(root)},
+			path = if next(root) == nil then {} else { unpack(root) },
 			oldValue = a,
-			newValue = b
+			newValue = b,
 		})
 		return changeLog
 	end
 
 	local function recordChanges(key)
-		local nextRoot = if not root then {} else {unpack(root)}
+		local nextRoot = if not root then {} else { unpack(root) }
 		table.insert(nextRoot, key)
-		
+
 		table.insert(changeLog, {
 			path = nextRoot,
 			oldValue = a[key],
-			newValue = b[key]
+			newValue = b[key],
 		})
 	end
-	
+
 	--[[
 		Decide which table to use as comparator (previous)
 		
@@ -60,24 +60,24 @@ local function MapChanges(a: any, b: any, prevRoot: any?, prevChangeLog: any?)
 		table B will be used in place of it.
 	]]
 	local sample = {}
-	
+
 	if #a < #b then
 		sample = if next(b) == nil then a else b
 	else
 		sample = if next(a) == nil then b else a
 	end
-	
+
 	-- print("Checking", a, b, "Chose", sample)
-	
-	for key, value in sample do
+
+	for key, _ in sample do
 		if type(a[key]) == type(b[key]) then
 			-- No change
 			if type(a[key]) == "table" then
 				-- print("Nested table", a[key], b[key])
 				-- Nested table
-				local nextRoot = if not root then {} else {unpack(root)}
+				local nextRoot = if not root then {} else { unpack(root) }
 				table.insert(nextRoot, key)
-				
+
 				MapChanges(a[key], b[key], nextRoot, changeLog)
 			else
 				-- print("Flat table", a[key], b[key])

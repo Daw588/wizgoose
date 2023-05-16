@@ -5,11 +5,11 @@ local Signal = require(script.Parent.Signal)
 
 local Shared = {}
 
-local function onChanged(stream, userPath: string, onChangeCallback: any)
+local function onChanged(box: any, userPath: string, onChangeCallback: any)
 	local path = string.split(userPath, ".")
-	local trackerCallbackIndex = #stream.trackerCallbacks + 1
-	
-	local function onChangeInternallMapped(changes, oldTable, newTable)
+	local changeCallbackIndex = #box.ChangeCallbacks + 1
+
+	local function onChangeInternalMapped(changes, oldTable, newTable)
 		-- Imagine if you were listening to data.inventory,
 		-- if the change was data.inventory.towers.minigunner,
 		-- then only data.inventory has to match.
@@ -20,7 +20,7 @@ local function onChanged(stream, userPath: string, onChangeCallback: any)
 			local change = {
 				path = rawChange.path or rawChange[1],
 				newValue = rawChange.newValue or rawChange[2],
-				oldValue = rawChange.oldValue or rawChange[3]
+				oldValue = rawChange.oldValue or rawChange[3],
 			}
 
 			-- Does path match?
@@ -45,14 +45,14 @@ local function onChanged(stream, userPath: string, onChangeCallback: any)
 				oldValue = oldValue[key]
 				newValue = newValue[key]
 			end
-			
+
 			-- Tell the user about the change
 			onChangeCallback(newValue, oldValue, change)
 		end
 	end
 
-	-- Register the tracker callback
-	table.insert(stream.trackerCallbacks, onChangeInternallMapped)
+	-- Register the change callback
+	table.insert(box.ChangeCallbacks, onChangeInternalMapped)
 
 	--[[
 		Current value
@@ -64,35 +64,31 @@ local function onChanged(stream, userPath: string, onChangeCallback: any)
 		callback(currentValue)
 	]]
 
-	local trackerInterface = {}
-
-	function trackerInterface:Disconnect()
-		table.remove(stream.trackerCallbacks, trackerCallbackIndex)
+	local connection = {}
+	function connection:Disconnect()
+		table.remove(box.ChangeCallbacks, changeCallbackIndex)
 	end
-
-	-- Register the tracker
-	table.insert(stream.trackers, trackerInterface)
-	return trackerInterface
+	return connection
 end
 
-function Shared.onChanged(stream, userPath: string)
+function Shared.onChanged(box: any, userPath: string)
 	local signal = Signal.new()
-	
-	local changeTracker = onChanged(stream, userPath, function(...)
+
+	local changeTracker = onChanged(box, userPath, function(...)
 		signal:Fire(...)
 	end)
-	
+
 	signal:Disconnected(function()
 		changeTracker:Disconnect()
 	end)
-	
+
 	return signal
 end
 
-function Shared.onItemAdded(stream, userPath: string, callback: any)
+function Shared.onItemAdded(box: any, userPath: string)
 	local signal = Signal.new()
-	
-	local changeTracker = onChanged(stream, userPath, function(newValue, oldValue, change)
+
+	local changeTracker = onChanged(box, userPath, function(newValue, oldValue, change)
 		-- Both values must be arrays, if not, return
 		if not Util.isArray(newValue) or not Util.isArray(oldValue) then
 			return
@@ -105,18 +101,18 @@ function Shared.onItemAdded(stream, userPath: string, callback: any)
 
 		signal:Fire(change.newValue)
 	end)
-	
+
 	signal:Disconnected(function()
 		changeTracker:Disconnect()
 	end)
-	
+
 	return signal
 end
 
-function Shared.onItemRemoved(stream, userPath: string, callback: any)
+function Shared.onItemRemoved(box: any, userPath: string)
 	local signal = Signal.new()
-	
-	local changeTracker = onChanged(stream, userPath, function(newValue, oldValue, change)
+
+	local changeTracker = onChanged(box, userPath, function(newValue, oldValue, change)
 		-- Both values must be arrays, if not, return
 		if not Util.isArray(newValue) or not Util.isArray(oldValue) then
 			print("Failed, not arrays")
@@ -132,11 +128,11 @@ function Shared.onItemRemoved(stream, userPath: string, callback: any)
 		-- Send previous value (of the item at the index)
 		signal:Fire(oldValue[index])
 	end)
-	
+
 	signal:Disconnected(function()
 		changeTracker:Disconnect()
 	end)
-	
+
 	return signal
 end
 

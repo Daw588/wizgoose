@@ -2,7 +2,7 @@
 
 local Util = {}
 
-function Util.deepCopyTable(tbl, seen: any?): any
+function Util.deepCopyTable(tbl: any, seen: any?): any
 	seen = seen or {}
 
 	if tbl == nil then
@@ -33,7 +33,7 @@ function Util.deepCopyTable(tbl, seen: any?): any
 	return no :: any
 end
 
-function Util.isArray(value)
+function Util.isArray(value: any): boolean
 	if type(value) ~= "table" then
 		return false
 	end
@@ -44,7 +44,7 @@ function Util.isArray(value)
 	end
 
 	-- Only object can have empty length with elements inside
-	for k, v in pairs(value) do
+	for _, _ in pairs(value) do
 		return false
 	end
 

@@ -1,10 +1,30 @@
+--!strict
+
 local Connection = require(script.Connection)
+
+export type Connection = {
+	Disconnect: () -> (),
+}
+
+export type Class = {
+	new: () -> Class,
+	__index: { [any]: any },
+	Connect: () -> Connection,
+	Once: () -> Connection,
+	Wait: () -> any,
+	Fire: (...any) -> (),
+	DisconnectAll: () -> (),
+	Disconnected: (() -> ()) -> (),
+}
 
 local Signal = {}
 Signal.__index = Signal
 
 function Signal.new()
-	return setmetatable({ connections = {} }, Signal)
+	return setmetatable({
+		connections = {},
+		disconnected = nil :: (() -> ()) | nil,
+	}, Signal)
 end
 
 function Signal:Connect(callback)
@@ -13,12 +33,12 @@ function Signal:Connect(callback)
 	return connection
 end
 
-function Signal:DisconnectAll()
-	table.clear(self.connections)
+function Signal:Disconnected(callback: () -> ())
+	self.disconnected = callback
 end
 
-function Signal:Disconnected(callback)
-	self.disconnected = callback
+function Signal:DisconnectAll()
+	table.clear(self.connections)
 end
 
 function Signal:Fire(...)
