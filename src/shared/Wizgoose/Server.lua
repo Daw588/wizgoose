@@ -6,8 +6,8 @@ local Shared = require(script.Parent.Internal.Shared)
 local Types = require(script.Parent.Internal.Types)
 local Config = require(script.Parent.Config)
 
-local Wizgooze = {}
-Wizgooze.Instances = {}
+local Wizgoose = {}
+Wizgoose.Instances = {}
 
 local CommunicationFolder = Instance.new("Folder")
 CommunicationFolder.Name = Config.COMMUNICATION_FOLDER.NAME
@@ -19,11 +19,11 @@ function RawInterface.raw(tbl: any)
 	return getmetatable(tbl).__index(tbl, nil, "raw")
 end
 
-function Wizgooze.__index(_, key)
+function Wizgoose.__index(_, key)
 	return RawInterface[key]
 end
 
-function Wizgooze.__newindex(self, key, value)
+function Wizgoose.__newindex(self, key, value)
 	-- If user attempts to overwrite the key "Value"
 	-- with a regular table (not "userdata"), then
 	-- wrap the new value with proxify and set it to
@@ -46,7 +46,7 @@ function Wizgooze.__newindex(self, key, value)
 end
 
 function RawInterface.new(id: string, value: Types.UserTable, clients: { Player }?)
-	local self = setmetatable({}, Wizgooze)
+	local self = setmetatable({}, Wizgoose)
 
 	-- Remote event to replicate changes to the client
 	local changeEvent = Instance.new("RemoteEvent")
@@ -116,7 +116,7 @@ function RawInterface.new(id: string, value: Types.UserTable, clients: { Player 
 	self.ChangeCallbacks = {}
 	self.Id = id
 
-	Wizgooze.Instances[self.Id] = self
+	Wizgoose.Instances[self.Id] = self
 
 	return self
 end
@@ -127,7 +127,7 @@ function RawInterface.get(id: string)
 	local calls = 0
 
 	-- Wait for box to be created
-	while not Wizgooze.Instances[id] do
+	while not Wizgoose.Instances[id] do
 		calls += 1
 		if calls > 100_000 then
 			error("Tried to retrieve a box but reached the wait limit, did you forget to create the box?")
@@ -135,23 +135,23 @@ function RawInterface.get(id: string)
 		task.wait()
 	end
 
-	return Wizgooze.Instances[id]
+	return Wizgoose.Instances[id]
 end
 
 function RawInterface:Changed(path: string)
-	return Shared.onChanged(Wizgooze.Instances[self.Id], path)
+	return Shared.onChanged(Wizgoose.Instances[self.Id], path)
 end
 
 function RawInterface:ItemAddedIn(path: string)
-	return Shared.onItemAdded(Wizgooze.Instances[self.Id], path)
+	return Shared.onItemAdded(Wizgoose.Instances[self.Id], path)
 end
 
 function RawInterface:ItemRemovedIn(path: string)
-	return Shared.onItemRemoved(Wizgooze.Instances[self.Id], path)
+	return Shared.onItemRemoved(Wizgoose.Instances[self.Id], path)
 end
 
 function RawInterface:Destroy()
-	Wizgooze.Instances[self.Id] = nil
+	Wizgoose.Instances[self.Id] = nil
 
 	self.Value = nil
 	self.ChangedCallbacks = {}

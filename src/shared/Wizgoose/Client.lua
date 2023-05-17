@@ -4,14 +4,14 @@ local Config = require(script.Parent.Config)
 local Util = require(script.Parent.Internal.Util)
 local Shared = require(script.Parent.Internal.Shared)
 
-local Wizgooze = {}
-Wizgooze.__index = Wizgooze
-Wizgooze.Instances = {}
+local Wizgoose = {}
+Wizgoose.__index = Wizgoose
+Wizgoose.Instances = {}
 
 local CommunicationFolder = Config.COMMUNICATION_FOLDER.WHERE:WaitForChild(Config.COMMUNICATION_FOLDER.NAME)
 
-function Wizgooze.new(id: string)
-	local self = setmetatable({}, Wizgooze)
+function Wizgoose.new(id: string)
+	local self = setmetatable({}, Wizgoose)
 
 	-- The code below must execute only once, no more than once!
 	local initEvent = CommunicationFolder:WaitForChild(id .. ".init", 25) :: RemoteFunction
@@ -73,17 +73,17 @@ function Wizgooze.new(id: string)
 		end
 	end)
 
-	Wizgooze.Instances[self.Id] = self
+	Wizgoose.Instances[self.Id] = self
 
 	return self
 end
 
-function Wizgooze.get(id: string)
+function Wizgoose.get(id: string)
 	-- Dont make multiple remote events when there is 2 that already exist for this table
-	if Wizgooze.Instances[id] then
+	if Wizgoose.Instances[id] then
 		local calls = 0
 
-		while not Wizgooze.Instances[id] do
+		while not Wizgoose.Instances[id] do
 			-- Prevent infinite yield
 			calls += 1
 			if calls > 100_000 then
@@ -92,26 +92,26 @@ function Wizgooze.get(id: string)
 			task.wait()
 		end
 
-		return Wizgooze.Instances[id]
+		return Wizgoose.Instances[id]
 	end
 
-	return Wizgooze.new(id)
+	return Wizgoose.new(id)
 end
 
-function Wizgooze:Changed(path: string)
-	return Shared.onChanged(Wizgooze.Instances[self.Id], path)
+function Wizgoose:Changed(path: string)
+	return Shared.onChanged(Wizgoose.Instances[self.Id], path)
 end
 
-function Wizgooze:ItemAddedIn(path: string)
-	return Shared.onItemAdded(Wizgooze.Instances[self.Id], path)
+function Wizgoose:ItemAddedIn(path: string)
+	return Shared.onItemAdded(Wizgoose.Instances[self.Id], path)
 end
 
-function Wizgooze:ItemRemovedIn(path: string)
-	return Shared.onItemRemoved(Wizgooze.Instances[self.Id], path)
+function Wizgoose:ItemRemovedIn(path: string)
+	return Shared.onItemRemoved(Wizgoose.Instances[self.Id], path)
 end
 
-function Wizgooze:Destroy()
+function Wizgoose:Destroy()
 	self.ChangeReceiver:Disconnect()
 end
 
-return Wizgooze
+return Wizgoose
