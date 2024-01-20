@@ -47,7 +47,9 @@ local function onChanged(box: any, userPath: string, onChangeCallback: any)
 			end
 
 			-- Tell the user about the change
-			onChangeCallback(newValue, oldValue, change)
+			task.defer(function()
+				onChangeCallback(newValue, oldValue, change)
+			end)
 		end
 	end
 
@@ -75,6 +77,7 @@ function Shared.onChanged(box: any, userPath: string)
 	local signal = Signal.new()
 
 	local changeTracker = onChanged(box, userPath, function(...)
+		--print("Change detected", userPath, ...)
 		signal:Fire(...)
 	end)
 

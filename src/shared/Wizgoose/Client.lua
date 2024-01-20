@@ -4,17 +4,17 @@ local Config = require(script.Parent.Config)
 local Util = require(script.Parent.Internal.Util)
 local Shared = require(script.Parent.Internal.Shared)
 
-local Wizgoose = {}
-Wizgoose.__index = Wizgoose
-Wizgoose.Instances = {}
+local Wizgooze = {}
+Wizgooze.__index = Wizgooze
+Wizgooze.Instances = {}
 
 local CommunicationFolder = Config.COMMUNICATION_FOLDER.WHERE:WaitForChild(Config.COMMUNICATION_FOLDER.NAME)
 
-function Wizgoose.new(id: string)
-	local self = setmetatable({}, Wizgoose)
+function Wizgooze.new(id: string)
+	local self = setmetatable({}, Wizgooze)
 
 	-- The code below must execute only once, no more than once!
-	local initEvent = CommunicationFolder:WaitForChild(id .. ".init", 25) :: RemoteFunction
+	local initEvent = CommunicationFolder:WaitForChild(id .. ".init", 60) :: RemoteFunction
 
 	-- Initial data request
 	self.Value = initEvent:InvokeServer()
@@ -22,7 +22,7 @@ function Wizgoose.new(id: string)
 	self.Id = id
 
 	-- Listen for data change requests
-	local changeEvent = CommunicationFolder:WaitForChild(id .. ".change", 25) :: RemoteEvent
+	local changeEvent = CommunicationFolder:WaitForChild(id .. ".change", 60) :: RemoteEvent
 	self.ChangeReceiver = changeEvent.OnClientEvent:Connect(function(changes)
 		local oldTable = Util.deepCopyTable(self.Value)
 
@@ -73,17 +73,17 @@ function Wizgoose.new(id: string)
 		end
 	end)
 
-	Wizgoose.Instances[self.Id] = self
+	Wizgooze.Instances[self.Id] = self
 
 	return self
 end
 
-function Wizgoose.get(id: string)
+function Wizgooze.get(id: string)
 	-- Dont make multiple remote events when there is 2 that already exist for this table
-	if Wizgoose.Instances[id] then
+	if Wizgooze.Instances[id] then
 		local calls = 0
 
-		while not Wizgoose.Instances[id] do
+		while not Wizgooze.Instances[id] do
 			-- Prevent infinite yield
 			calls += 1
 			if calls > 100_000 then
@@ -92,26 +92,26 @@ function Wizgoose.get(id: string)
 			task.wait()
 		end
 
-		return Wizgoose.Instances[id]
+		return Wizgooze.Instances[id]
 	end
 
-	return Wizgoose.new(id)
+	return Wizgooze.new(id)
 end
 
-function Wizgoose:Changed(path: string)
-	return Shared.onChanged(Wizgoose.Instances[self.Id], path)
+function Wizgooze:Changed(path: string)
+	return Shared.onChanged(Wizgooze.Instances[self.Id], path)
 end
 
-function Wizgoose:ItemAddedIn(path: string)
-	return Shared.onItemAdded(Wizgoose.Instances[self.Id], path)
+function Wizgooze:ItemAddedIn(path: string)
+	return Shared.onItemAdded(Wizgooze.Instances[self.Id], path)
 end
 
-function Wizgoose:ItemRemovedIn(path: string)
-	return Shared.onItemRemoved(Wizgoose.Instances[self.Id], path)
+function Wizgooze:ItemRemovedIn(path: string)
+	return Shared.onItemRemoved(Wizgooze.Instances[self.Id], path)
 end
 
-function Wizgoose:Destroy()
+function Wizgooze:Destroy()
 	self.ChangeReceiver:Disconnect()
 end
 
-return Wizgoose
+return Wizgooze
